@@ -60,13 +60,17 @@ if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
     git clone -b v2.1.3 https://github.com/catppuccin/tmux.git ~/.config/tmux/plugins/catppuccin/tmux
 fi
 
-# Use Stow to link dotfiles
-echo "🔗 Stowing dotfiles..."
+echo "🔗 Symlinking dotfiles..."
 cd ~/dotfiles
 
-# This loops over every folder (tmux, zsh) and symlinks them to Home (~)
-for app in */ ; do
-    stow -t ~ "$app"
+# FIX: Delete existing config files so Stow can replace them
+# We force remove (-f) .zshrc because common-utils created it
+rm -f ~/.zshrc
+rm -f ~/.config/tmux/tmux.conf
+
+# Loop through directories (tmux, zsh, omp) and stow them
+for d in */; do
+    stow -t ~ "${d%/}" 2>/dev/null || true
 done
 
 echo "✅ Dotfiles installed! Please restart your shell or run 'zsh'."
