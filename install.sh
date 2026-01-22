@@ -50,6 +50,7 @@ cd ~/
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 sudo rm -rf /opt/nvim-linux-x86_64
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
 rm nvim-linux-x86_64.tar.gz
 
 # --- 4. Install oh my posh ---
@@ -91,16 +92,21 @@ fi
 echo "🔗 Symlinking dotfiles..."
 cd ~/dotfiles
 
-# Move existing config files so Stow can replace them
-if [ -f ~/.zshrc ] && [ ! -L ~/.zshrc ]; then
-    mv ~/.zshrc ~/.zshrc.bak
-fi
-rm -f ~/.config/tmux/tmux.conf
-# Move nvim config before so stow can replace them
-mv ~/.config/nvim{,.bak}
-mv ~/.local/share/nvim{,.bak}
-mv ~/.local/state/nvim{,.bak}
-mv ~/.cache/nvim{,.bak}
+# SAFE MOVE FUNCTION: Only moves if source exists and isn't already a symlink
+safe_backup() {
+    if [ -e "$1" ] && [ ! -L "$1" ]; then
+        echo "Backing up $1"
+        mv "$1" "$1.bak"
+    fi
+}
+
+safe_backup ~/.zshrc
+safe_backup ~/.config/nvim
+safe_backup ~/.local/share/nvim
+safe_backup ~/.local/state/nvim
+safe_backup ~/.cache/nvim
+[ -f ~/.config/tmux/tmux.conf ] && rm -f ~/.config/tmux/tmux.conf
+
 # Loop through directories (tmux, zsh, omp) and stow them
 for d in */; do
     stow -t ~ "${d%/}" 2>/dev/null || true
