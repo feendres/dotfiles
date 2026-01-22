@@ -3,15 +3,14 @@ set -e # Exit on error
 
 echo "🚀 Starting Dotfiles Installation..."
 
-#!/bin/bash
-
-# Define the list of tools you need
-deps=(stow tmux zsh curl git)
+# --- 1. Install System Dependencies ---
+# lazyvim needs git, fzf, ripgrep, fd
+echo "📦 Checking system dependencies..."
+deps=(stow tmux zsh curl git build-essential ripgrep fd-find fzf unzip)
 to_install=""
 
-# Loop through and check if they exist
 for pkg in "${deps[@]}"; do
-    if ! command -v "$pkg" &> /dev/null; then
+    if ! dpkg -l | grep -q "^ii  $pkg "; then
         echo "🔍 $pkg is missing..."
         to_install="$to_install $pkg"
     fi
@@ -25,13 +24,41 @@ if [ -n "$to_install" ]; then
 else
     echo "✅ All system dependencies are already installed."
 fi
+# --- 2. Install Tree-sitter CLI (REQUIRED for new LazyVim) ---
+# We install the binary directly to avoid needing Node.js/NPM
+if ! command -v tree-sitter &> /dev/null; then
+    echo "⬇️  Installing tree-sitter-cli (Required for parsers)..."
+    # Fetch the latest release version tag from GitHub API
+    TS_VERSION=$(curl -s "https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
+    
+    # Download the linux binary
+    curl -Lo tree-sitter.gz "https://github.com/tree-sitter/tree-sitter/releases/download/${TS_VERSION}/tree-sitter-linux-x64.gz"
+    
+    # Unzip and install
+    gzip -d tree-sitter.gz
+    chmod +x tree-sitter
+    sudo mv tree-sitter /usr/local/bin/
+    
+    echo "✅ tree-sitter-cli installed version: $(tree-sitter --version)"
+else
+    echo "✅ tree-sitter-cli is already installed."
+fi
 
+# --- 3. Install nvim from pre-built binaries ---
+echo "Installing nvim"
+cd ~/
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo rm -rf /opt/nvim-linux-x86_64
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+rm nvim-linux-x86_64.tar.gz
+
+# --- 4. Install oh my posh ---
 # Installs to ~/.local/bin so it doesn't need root
 echo "🎨 Installing Oh My Posh..."
 mkdir -p ~/.local/bin
 curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.local/bin
 
-# --- 3. Install Zsh Plugins (OMZ Custom) ---
+# --- 5. Install Zsh Plugins (OMZ Custom) ---
 ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
 
 # A. zsh-autosuggestions (The "Ghost text" autocomplete)
@@ -60,14 +87,20 @@ if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
     git clone -b v2.1.3 https://github.com/catppuccin/tmux.git ~/.config/tmux/plugins/catppuccin/tmux
 fi
 
+# --- 6. Symlinking dotfiles ---
 echo "🔗 Symlinking dotfiles..."
 cd ~/dotfiles
 
-# FIX: Delete existing config files so Stow can replace them
-# We force remove (-f) .zshrc because common-utils created it
-rm -f ~/.zshrc
+# Move existing config files so Stow can replace them
+if [ -f ~/.zshrc ] && [ ! -L ~/.zshrc ]; then
+    mv ~/.zshrc ~/.zshrc.bak
+fi
 rm -f ~/.config/tmux/tmux.conf
-
+# Move nvim config before so stow can replace them
+mv ~/.config/nvim{,.bak}
+mv ~/.local/share/nvim{,.bak}
+mv ~/.local/state/nvim{,.bak}
+mv ~/.cache/nvim{,.bak}
 # Loop through directories (tmux, zsh, omp) and stow them
 for d in */; do
     stow -t ~ "${d%/}" 2>/dev/null || true
