@@ -1,3 +1,4 @@
+export PATH="$HOME/.local/bin:$PATH"
 # Path to your oh-my-zsh installation
 export ZSH="$HOME/.oh-my-zsh"
 # Force UTF-8 for Tmux and other tools to render icons correctly
@@ -18,4 +19,12 @@ source "$ZSH/custom/themes/catppuccin_syntax/themes/catppuccin_macchiato-zsh-syn
 # --- USER CONFIG ---
 eval "$(oh-my-posh init zsh --config ~/.config/ohmyposh/custom_catppuccin_macchiato.omp.json)"
 
-alias ll="ls -l"
+# eza aliases for ls
+
+if command -v eza &> /dev/null; then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -lah --icons --group-directories-first --git'
+  alias la='eza -a --icons'
+  alias lt='eza --tree --level=2 --icons'
+  alias tree='eza --tree --icons'
+fi
