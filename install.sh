@@ -2,7 +2,11 @@
 set -e # Exit on error
 
 echo "🚀 Starting Dotfiles Installation..."
-
+if ! locale -a | grep -q "en_US.utf8"; then
+    echo "Generating en_US.UTF-8 locale..."
+    sudo locale-gen en_US.UTF-8
+    sudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+fi
 # --- 1. Install System Dependencies ---
 # lazyvim needs git, fzf, ripgrep, fd
 echo "📦 Checking system dependencies..."
