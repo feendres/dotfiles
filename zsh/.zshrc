@@ -15,7 +15,7 @@ source $ZSH/oh-my-zsh.sh
 # --- CATPPUCCIN SYNTAX THEME ---
 # This must run AFTER 'source $ZSH/oh-my-zsh.sh' because the plugin must be loaded first.
 #source "$ZSH/custom/themes/catppuccin_syntax/themes/catppuccin_macchiato-zsh-syntax-highlighting.zsh"
-source "$ZSH/custom/themes/catppuccin_syntax/themes/tokyo_night_zsh_syntax_highlighting.zsh"
+source "$ZSH/custom/themes/tokyo_syntax/themes/tokyo_night_zsh_syntax_highlighting.zsh"
 
 # --- USER CONFIG ---
 #eval "$(oh-my-posh init zsh --config ~/.config/ohmyposh/custom_catppuccin_macchiato.omp.json)"
