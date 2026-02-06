@@ -3,11 +3,11 @@ set -e # Exit on error
 
 echo "🚀 Starting Dotfiles Installation..."
 if ! locale -a | grep -q "en_US.utf8"; then
-    echo "Generating en_US.UTF-8 locale..."
-    sudo locale-gen en_US.UTF-8
-    sudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+  echo "Generating en_US.UTF-8 locale..."
+  sudo locale-gen en_US.UTF-8
+  sudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 fi
-# --- 1. Install System Dependencies ---
+# --- Install System Dependencies ---
 # lazyvim needs git, fzf, ripgrep, fd
 echo "📦 Checking system dependencies..."
 # zsh is already included here, so apt-get will install it if missing
@@ -30,7 +30,7 @@ else
   echo "✅ All system dependencies are already installed."
 fi
 
-# --- 2. Install Tree-sitter CLI (REQUIRED for new LazyVim) ---
+# --- Install Tree-sitter CLI (REQUIRED for new LazyVim) ---
 # We install the binary directly to avoid needing Node.js/NPM
 if ! command -v tree-sitter &>/dev/null; then
   echo "⬇️  Installing tree-sitter-cli (Required for parsers)..."
@@ -50,7 +50,7 @@ else
   echo "✅ tree-sitter-cli is already installed."
 fi
 
-# --- 3. Install nvim from pre-built binaries ---
+# --- Install nvim from pre-built binaries ---
 echo "Installing nvim"
 cd ~/
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
@@ -59,13 +59,13 @@ sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
 rm nvim-linux-x86_64.tar.gz
 
-# --- 4. Install oh my posh ---
+# --- Install oh my posh ---
 # Installs to ~/.local/bin so it doesn't need root
 echo "🎨 Installing Oh My Posh..."
 mkdir -p ~/.local/bin
 curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.local/bin
 
-# --- [NEW] 4.5 Install Oh My Zsh ---
+# --- Install Oh My Zsh ---
 # We must do this BEFORE installing plugins in section 5
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   echo "🔥 Installing Oh My Zsh..."
@@ -78,36 +78,22 @@ else
   echo "✅ Oh My Zsh is already installed."
 fi
 
-# --- 5. Install Zsh Plugins (OMZ Custom) ---
+# --- Install Zsh Plugins (OMZ Custom) ---
 ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
 
-# A. zsh-autosuggestions (The "Ghost text" autocomplete)
+# zsh-autosuggestions (The "Ghost text" autocomplete)
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
   echo "⌨️  Cloning zsh-autosuggestions..."
   git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 fi
 
-# B. Catppuccin Syntax Highlighting
 # We clone this specifically as requested
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
   echo "🌈 Cloning zsh-syntax-highlighting..."
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 fi
 
-if [ ! -d "$ZSH_CUSTOM/themes/catppuccin_syntax" ]; then
-  echo "🎨 Cloning Catppuccin Syntax Highlighting..."
-  mkdir -p "$ZSH_CUSTOM/themes"
-  git clone https://github.com/catppuccin/zsh-syntax-highlighting.git "$ZSH_CUSTOM/themes/catppuccin_syntax"
-fi
-
-# Manual install of Catppuccin Tmux Theme
-if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
-  echo "🎨 Cloning Catppuccin Tmux theme..."
-  mkdir -p ~/.config/tmux/plugins/catppuccin
-  git clone -b v2.1.3 https://github.com/catppuccin/tmux.git ~/.config/tmux/plugins/catppuccin/tmux
-fi
-
-# --- 6. Symlinking dotfiles ---
+# ---  Symlinking dotfiles ---
 echo "🔗 Symlinking dotfiles..."
 cd ~/dotfiles
 
@@ -132,7 +118,7 @@ for d in */; do
   stow -t ~ "${d%/}" 2>/dev/null || true
 done
 
-# --- [NEW] 7. Set Default Shell ---
+# ---  Set Default Shell ---
 echo "🐚 Checking default shell..."
 if [ "$SHELL" != "$(which zsh)" ]; then
   echo "Changing default shell to zsh..."
