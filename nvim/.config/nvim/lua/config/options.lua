@@ -2,10 +2,7 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- 1. Always use system clipboard behavior
-vim.opt.clipboard = "unnamedplus"
-
--- 2. Define the 'Anti-Freeze' Paste Function
+--  Define the 'Anti-Freeze' Paste Function
 local function paste()
   return {
     vim.fn.split(vim.fn.getreg('"'), "\n"),
@@ -13,8 +10,8 @@ local function paste()
   }
 end
 
--- 3. FORCE the OSC 52 provider (No "if" checks)
---    This uses the internal Neovim v0.10+ module
+-- FORCE the OSC 52 provider (No "if" checks)
+-- This uses the internal Neovim v0.10+ module
 vim.g.clipboard = {
   name = 'OSC 52',
   copy = {
@@ -26,3 +23,6 @@ vim.g.clipboard = {
     ['*'] = paste,
   },
 }
+
+-- Set to "basedpyright" to use basedpyright instead of pyright.
+vim.g.lazyvim_python_lsp = "basedpyright"
