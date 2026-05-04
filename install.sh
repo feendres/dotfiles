@@ -87,9 +87,17 @@ echo "🔗 Symlinking dotfiles..."
 cd "$HOME/dotfiles"
 
 safe_backup() {
-  if [ -e "$1" ] && [ ! -L "$1" ]; then
-    echo "Backing up $1"
-    mv "$1" "$1.bak"
+  local target="$1"
+  local backup_path="${target}.bak"
+
+  # Only act if the target is a real file/folder (not a symlink)
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    echo "Backing up $target to $backup_path"
+
+    # Forcefully remove existing backup so mv doesn't fail
+    rm -rf "$backup_path"
+
+    mv "$target" "$backup_path"
   fi
 }
 
@@ -98,10 +106,12 @@ safe_backup "$HOME/.config/nvim"
 safe_backup "$HOME/.local/share/nvim"
 safe_backup "$HOME/.local/state/nvim"
 safe_backup "$HOME/.cache/nvim"
-[ -f "$HOME/.config/tmux/tmux.conf" ] && rm -f "$HOME/.config/tmux/tmux.conf"
+safe_backup "$HOME/.config/tmux"
 
 for d in */; do
-  stow -t "$HOME" "${d%/}" || echo "⚠️  stow conflict in ${d%/} — check manually"
+  echo "Stowing $d..."
+  # -R: Recursive, -t: Target, -v: Verbose
+  stow -R -t "$HOME" "${d%/}" || echo "⚠️  stow conflict in $d — check manually"
 done
 
 # --- Set Default Shell ---
@@ -129,4 +139,3 @@ fi
 
 echo ""
 echo "✅ Dotfiles installed! Please restart your shell."
-
