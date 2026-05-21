@@ -2,22 +2,11 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = {
-      servers = {
-        basedpyright = {
-          settings = {
-            basedpyright = {
-              analysis = {
-                typeCheckingMode = "standard",
-                diagnosticSeverityOverrides = {
-                  reportAny = "none",
-                  reportUnknownMemberType = "none",
-                  reportUnknownVariableType = "none",
-                  reportUnknownArgumentType = "none",
-                },
-              },
-            },
-          },
-        },
+      -- This diagnostic table is automatically passed into
+      -- vim.diagnostic.config() by LazyVim during setup.
+      diagnostics = {
+        virtual_text = false,
+        virtual_lines = { current_line = true },
       },
     },
   },
