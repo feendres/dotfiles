@@ -10,6 +10,8 @@ export LC_ALL=en_US.UTF-8
 # zsh-syntax-highlighting: must be LAST in the list
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 
+ZSH_THEME=""
+
 source $ZSH/oh-my-zsh.sh
 
 # --- CATPPUCCIN SYNTAX THEME ---
